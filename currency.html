@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Website</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
+
+  <style>
+   
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+	
+	.notice {
+      background-color: #e74c3c;
+      color: #fff;
+      padding: 10px;
+      text-align: center;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0;
+      color: #555;
+    }
+
+    select,
+    input,
+    button,
+    span {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #3af44a;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #27ae60;
+    }
+
+    .error {
+      color: #c0392b;
+    }
+	.bgg{
+	background: #3af44a;
+	}
+	
+  </style>
+</head>
+
+
+  <body>
+
+    <div class="scrollToTop-btn">
+      <i class="fas fa-angle-up"></i>
+    </div>
+
+    <header class="bgg">
+      <a href="index.html" class="brand">Sumant Pal</a>
+      <div class="menu-btn"></div>
+      <div class="navigation">
+      
+        <a href="index.html">About</a>
+		 <a href="index.html">Academic  </a>
+        <a href="index.html">Skills</a>
+       <a href="index.html">Testimonial </a>
+	   <a href="currency.html">Currency </a>
+	   <a href="forcaster.html">Forcaster </a>
+        <a href="index.html">Contact</a>
+      </div>
+    </header>
+
+  <section class="about" id="about">
+      <div class="title reveal">
+        <h2 class="section-title">Currency Converter</h2>
+      </div>
+  
+    </section>
+  <div class="container">
+ 
+    <label for="sourceCurrency">Source Currency:</label>
+    <select id="sourceCurrency" disabled>
+      <option value="gbp">GBP (UK Pound)</option>
+    </select>
+
+    <label for="destinationCurrency">Destination Currency:</label>
+    <select id="destinationCurrency">
+      <!-- Options will be dynamically added here using JavaScript -->
+    </select>
+
+    <label for="exchangeRate">Current Exchange Rate:</label>
+    <span id="exchangeRate"></span>
+
+    <label for="calculationTimestamp">Calculation Timestamp:</label>
+    <span id="calculationTimestamp"></span>
+
+    <label for="amount">Amount of transaction:</label>
+    <input type="number" id="amount" min="0" step="0.01">
+
+    <button onclick="convertCurrency()">Convert</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    let destinationCurrencies;
+
+    // Fetch exchange rate data
+    fetch('https://www.floatrates.com/daily/gbp.json')
+      .then(response => response.json())
+      .then(data => {
+        // Extract destination currencies and their rates
+        destinationCurrencies = data;
+
+        // Update the destination currency dropdown options
+        const destinationCurrencyDropdown = document.getElementById('destinationCurrency');
+        for (const currency in destinationCurrencies) {
+          const option = document.createElement('option');
+          option.value = currency;
+          option.textContent = destinationCurrencies[currency].name;
+          destinationCurrencyDropdown.appendChild(option);
+        }
+      })
+      .catch(error => console.error('Error fetching exchange rates:', error));
+
+    function convertCurrency() {
+      const sourceCurrency = document.getElementById('sourceCurrency').value;
+      const destinationCurrency = document.getElementById('destinationCurrency').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+
+      if (isNaN(amount) || amount <= 0) {
+        displayError('Please enter a valid amount.');
+        return;
+      }
+
+      if (amount > 1000000) {
+        displayError('Amount cannot exceed 1,000,000.');
+        return;
+      }
+
+      const exchangeRate = destinationCurrencies[destinationCurrency].rate;
+      const convertedAmount = (amount * exchangeRate).toFixed(2);
+
+      const result = `${amount} ${sourceCurrency} = ${convertedAmount} ${destinationCurrency}`;
+
+      // Display the result
+      document.getElementById('result').innerText = result;
+
+      // Update additional information
+      document.getElementById('exchangeRate').innerText = `1 ${sourceCurrency} = ${exchangeRate} ${destinationCurrency}`;
+
+      // Use UK format for timestamp
+      const timestampOptions = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric', 
+        hour: 'numeric', 
+        minute: 'numeric', 
+        second: 'numeric', 
+        timeZoneName: 'short', 
+        timeZone: 'Europe/London'
+      };
+      
+      const timestamp = new Date(destinationCurrencies[destinationCurrency].date).toLocaleString('en-GB', timestampOptions);
+      document.getElementById('calculationTimestamp').innerText = ` ${timestamp}`;
+    }
+
+    function displayError(message) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = `<span class="error">Error: ${message}</span>`;
+    }
+
+    // Set default values
+    document.getElementById('amount').value = 1;
+  </script>
+ <footer class="footer">
+    <p class="footer-title">Sumant Pal</p>
+      <p>sumantpal240597@yahoo.com</p>
+	     <div class="media-icons">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+        </div>
+    </footer>
+
+    <script src="script.js" charset="utf-8"></script>
+
+  </body>
+</html>
